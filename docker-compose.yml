@@ -6,7 +6,9 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5000"  # Map container port 5000 to host port 5000
+      - "5000:5000"
     environment:
-      - FLASK_ENV=production  # Ensure the Flask environment is set to production
+      FLASK_ENV: production  # Ensure the Flask environment is set to production
+      API_KEY: xxx
+      FLASK_APP: app.py
     restart: always  # Restart the container if it stops
