@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  flask_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000"  # Map container port 5000 to host port 5000
+    environment:
+      - FLASK_ENV=production  # Ensure the Flask environment is set to production
+    restart: always  # Restart the container if it stops
