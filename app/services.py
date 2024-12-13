@@ -38,11 +38,11 @@ def process_filters(data):
     # Remove merchants property if present
     data.pop("merchants", None)
 
-    # Process vendors: sort by count (highest first), take top 50
+    # Process vendors: sort by count (highest first), take top 20
     if "vendors" in data and data["vendors"] and "values" in data["vendors"]:
         vendors = data["vendors"].get("values", [])
         if vendors:
-            vendors = sorted(vendors, key=lambda x: x.get("count", 0), reverse=True)[:50]
+            vendors = sorted(vendors, key=lambda x: x.get("count", 0), reverse=True)[:20]
             vendors = filter_items(vendors)  # Remove items with empty or null "name"
             data["vendors"]["values"] = vendors
 
@@ -55,11 +55,11 @@ def process_filters(data):
         else:
             data["available_for"] = {"values": []}  # Default empty structure
 
-    # Process productGroups: randomly pick 10 items if more than 50
+    # Process productGroups: randomly pick 10 items if more than 20
     if "productGroups" in data and data["productGroups"] and "values" in data["productGroups"]:
         product_groups = data["productGroups"].get("values", [])
         if len(product_groups) > 50:
-            product_groups = sample(product_groups, 50)
+            product_groups = sample(product_groups, 20)
         product_groups = filter_items(product_groups)  # Remove items with empty or null "name"
         data["productGroups"]["values"] = product_groups
 
