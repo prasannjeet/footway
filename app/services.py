@@ -15,11 +15,11 @@ def fetch_filters(query_params=None):
         "Content-Type": "application/json"
     }
 
-    # Clean query parameters by removing null, empty values, or empty arrays
+    # Clean query parameters by removing null, empty values, empty arrays, or values exactly "xx"
     if query_params:
         query_params = {
             key: value for key, value in query_params.items()
-            if value not in (None, "", [])  # Remove null, empty string, or empty list
+            if value not in (None, "", [], "xx")  # Remove null, empty string, empty list, or "xx"
         }
 
     # Make the API request with query parameters
