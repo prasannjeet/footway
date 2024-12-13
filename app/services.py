@@ -15,13 +15,6 @@ def fetch_filters(query_params=None):
         "Content-Type": "application/json"
     }
 
-    # Clean query parameters by removing null, empty values, empty arrays, or values exactly "xx"
-    if query_params:
-        query_params = {
-            key: value for key, value in query_params.items()
-            if value not in (None, "", [], "xx")  # Remove null, empty string, empty list, or "xx"
-        }
-
     # Make the API request with query parameters
     response = requests.get(API_URL, headers=headers, params=query_params)
     response.raise_for_status()  # Raise an error if the request fails
@@ -34,54 +27,68 @@ def fetch_filters(query_params=None):
     return processed_data
 
 def process_filters(data):
-    # Helper function to filter out items with empty or null "name"
-    def filter_items(items):
-        return [item for item in items if item.get("name")]
 
-    # Remove totalItems property
+    # Ensure `data` is not None
+    if not data or not isinstance(data, dict):
+        raise ValueError("Invalid or empty data received from the API")
+
+    # Remove totalItems property if present
     data.pop("totalItems", None)
 
-    # Remove merchants property
+    # Remove merchants property if present
     data.pop("merchants", None)
 
     # Process vendors: sort by count (highest first), take top 10
-    if "vendors" in data and "values" in data["vendors"]:
-        vendors = data["vendors"]["values"]
-        vendors = sorted(vendors, key=lambda x: x.get("count", 0), reverse=True)[:10]
-        vendors = filter_items(vendors)  # Remove items with empty or null "name"
-        data["vendors"]["values"] = vendors
+    if "vendors" in data and data["vendors"] and "values" in data["vendors"]:
+        vendors = data["vendors"].get("values", [])
+        if vendors:
+            vendors = sorted(vendors, key=lambda x: x.get("count", 0), reverse=True)[:10]
+            vendors = filter_items(vendors)  # Remove items with empty or null "name"
+            data["vendors"]["values"] = vendors
 
     # Rename departments to available_for
-    if "departments" in data:
+    if "departments" in data and data["departments"]:
         departments = data.pop("departments")
-        departments["values"] = filter_items(departments.get("values", []))  # Filter items
-        data["available_for"] = departments
+        if isinstance(departments, dict):
+            departments["values"] = filter_items(departments.get("values", []))  # Filter items
+            data["available_for"] = departments
+        else:
+            data["available_for"] = {"values": []}  # Default empty structure
 
     # # Process productGroups: randomly pick 10 items if more than 10
-    # if "productGroups" in data and "values" in data["productGroups"]:
-    #     product_groups = data["productGroups"]["values"]
+    # if "productGroups" in data and data["productGroups"] and "values" in data["productGroups"]:
+    #     product_groups = data["productGroups"].get("values", [])
     #     if len(product_groups) > 10:
     #         product_groups = sample(product_groups, 10)
     #     product_groups = filter_items(product_groups)  # Remove items with empty or null "name"
     #     data["productGroups"]["values"] = product_groups
 
     # Rename productTypes to category
-    if "productTypes" in data:
+    if "productTypes" in data and data["productTypes"]:
         product_types = data.pop("productTypes")
-        product_types["values"] = filter_items(product_types.get("values", []))  # Filter items
-        data["category"] = product_types
+        if isinstance(product_types, dict):
+            product_types["values"] = filter_items(product_types.get("values", []))  # Filter items
+            data["category"] = product_types
+        else:
+            data["category"] = {"values": []}  # Default empty structure
 
     # Rename productGroups to subCategory
-    if "productGroups" in data:
+    if "productGroups" in data and data["productGroups"]:
         sub_category = data.pop("productGroups")
-        sub_category["values"] = filter_items(sub_category.get("values", []))  # Filter items
-        data["subCategory"] = sub_category
+        if isinstance(sub_category, dict):
+            sub_category["values"] = filter_items(sub_category.get("values", []))  # Filter items
+            data["subCategory"] = sub_category
+        else:
+            data["subCategory"] = {"values": []}  # Default empty structure
 
     # Rename vendors to brands
-    if "vendors" in data:
+    if "vendors" in data and data["vendors"]:
         brands = data.pop("vendors")
-        brands["values"] = filter_items(brands.get("values", []))  # Filter items
-        data["brands"] = brands
+        if isinstance(brands, dict):
+            brands["values"] = filter_items(brands.get("values", []))  # Filter items
+            data["brands"] = brands
+        else:
+            data["brands"] = {"values": []}  # Default empty structure
 
     return data
 
