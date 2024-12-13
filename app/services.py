@@ -39,12 +39,12 @@ def process_filters(data):
     data.pop("merchants", None)
 
     # Process vendors: sort by count (highest first), take top 10
-    if "vendors" in data and data["vendors"] and "values" in data["vendors"]:
-        vendors = data["vendors"].get("values", [])
-        if vendors:
-            vendors = sorted(vendors, key=lambda x: x.get("count", 0), reverse=True)[:10]
-            vendors = filter_items(vendors)  # Remove items with empty or null "name"
-            data["vendors"]["values"] = vendors
+    # if "vendors" in data and data["vendors"] and "values" in data["vendors"]:
+    #     vendors = data["vendors"].get("values", [])
+    #     if vendors:
+    #         vendors = sorted(vendors, key=lambda x: x.get("count", 0), reverse=True)[:10]
+    #         vendors = filter_items(vendors)  # Remove items with empty or null "name"
+    #         data["vendors"]["values"] = vendors
 
     # Rename departments to available_for
     if "departments" in data and data["departments"]:
