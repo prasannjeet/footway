@@ -15,7 +15,7 @@ interface ProductGridProps {
 
 const ProductGrid: React.FC<ProductGridProps> = ({ products, onProductClick }) => {
     const uniqueProducts = Array.from(
-        new Map(products.map(product => [product.variantId, product])).values()
+        new Map(products.map(product => [product.productName, product])).values()
     );
 
     return (

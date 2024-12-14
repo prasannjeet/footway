@@ -24,6 +24,7 @@ interface ProductDetailsPopupProps {
 
 const ProductDetailsPopup: React.FC<ProductDetailsPopupProps> = ({ product, onClose }) => {
     const popupRef = useRef<HTMLDivElement>(null);
+    const imageUrl = product.image_url || 'https://placehold.co/600x400/EEE/31343C';
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -44,7 +45,7 @@ const ProductDetailsPopup: React.FC<ProductDetailsPopupProps> = ({ product, onCl
                 <button onClick={onClose} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
                     &times;
                 </button>
-                <img src={product.image_url} alt={product.productName} className="w-full h-64 object-contain mb-4" />
+                <img src={imageUrl} alt={product.productName} className="w-full h-64 object-contain mb-4" />
                 <h2 className="text-2xl font-bold mb-2">{product.productName}</h2>
                 <div className="text-gray-700 mb-2" dangerouslySetInnerHTML={{ __html: product.product_description }} />
                 <p className="text-gray-700 mb-2">Size: {product.size}</p>
