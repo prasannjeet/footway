@@ -92,5 +92,64 @@ def process_filters(data):
 
     return data
 
+SEARCH_API_URL = "https://api.footwayplus.com/v1/inventory/search"
+
+def fetch_inventory(query_params=None):
+    # Load API key from environment variable
+    api_key = load_env_var("API_KEY")
+
+    # Prepare headers
+    headers = {
+        "X-API-KEY": api_key,
+        "Content-Type": "application/json"
+    }
+
+    # Make the API request with query parameters
+    response = requests.get(SEARCH_API_URL, headers=headers, params=query_params)
+    response.raise_for_status()  # Raise an error if the request fails
+
+    # Process the response
+    data = response.json()
+
+    # Post-process the data if needed
+    return process_inventory(data)
+
+
+def process_inventory(data):
+    # Ensure `data` is valid
+    if not data or not isinstance(data, dict):
+        raise ValueError("Invalid or empty data received from the API")
+
+    # Process the response to format the output (optional)
+    items = data.get("items", [])
+    processed_items = []
+
+    for item in items:
+        processed_items.append({
+            "merchantId": item.get("merchantId"),
+            "variantId": item.get("variantId"),
+            "productName": item.get("productName"),
+            "supplierModelNumber": item.get("supplierModelNumber"),
+            "ean": item.get("ean", []),
+            "size": item.get("size"),
+            "price": item.get("price"),
+            "product_description": item.get("product_description"),
+            "vendor": item.get("vendor"),
+            "quantity": item.get("quantity"),
+            "productType": item.get("productType", []),
+            "productGroup": item.get("productGroup", []),
+            "department": item.get("department", []),
+            "image_url": item.get("image_url"),
+            "created": item.get("created"),
+            "updated": item.get("updated")
+        })
+
+    return {
+        "items": processed_items,
+        "totalItems": data.get("totalItems", 0),
+        "currentPage": data.get("currentPage", 1),
+        "totalPages": data.get("totalPages", 1)
+    }
+
 def filter_items(items):
     return [item for item in items if item.get("name")]
