@@ -104,15 +104,39 @@ def fetch_inventory(query_params=None):
         "Content-Type": "application/json"
     }
 
-    # Make the API request with query parameters
-    response = requests.get(SEARCH_API_URL, headers=headers, params=query_params)
-    response.raise_for_status()  # Raise an error if the request fails
+    # Initialize variables for pagination
+    all_items = []
+    current_page = 1
+    total_pages = 5  # Fetch at least 5 pages
 
-    # Process the response
-    data = response.json()
+    while current_page <= total_pages:
+        # Update query parameters with the current page
+        if query_params is None:
+            query_params = {}
+        query_params['page'] = current_page
 
-    # Post-process the data if needed
-    return process_inventory(data)
+        # Make the API request with query parameters
+        response = requests.get(SEARCH_API_URL, headers=headers, params=query_params)
+        response.raise_for_status()  # Raise an error if the request fails
+
+        # Process the response
+        data = response.json()
+        items = data.get("items", [])
+        all_items.extend(items)
+
+        # Check if there are more pages to fetch
+        current_page += 1
+        if current_page > data.get("totalPages", 1):
+            break
+
+    # Post-process the combined data
+    processed_data = process_inventory({"items": all_items})
+
+    # Override pagination info
+    processed_data["currentPage"] = 1
+    processed_data["totalPages"] = 1
+
+    return processed_data
 
 
 def process_inventory(data):
