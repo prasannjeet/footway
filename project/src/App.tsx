@@ -9,6 +9,7 @@ const SOCKET_URL = "https://a8kko0w0wk4okoogswgwg8kw.coolify.ooguy.com";
 
 function App() {
     const [selectedCategory, setSelectedCategory] = useState<ProductCategory>('all');
+    const [selectedSize, setSelectedSize] = useState<string>('all');
     const [socketData, setSocketData] = useState(null);
 
     useEffect(() => {
@@ -32,20 +33,29 @@ function App() {
         };
     }, []);
 
+    const sizes = socketData?.last_search?.items
+        ? Array.from(new Set(socketData.last_search.items.map(item => item.size)))
+        : [];
+
+    const filteredProducts = socketData?.last_search?.items.filter(item =>
+        selectedSize === 'all' || item.size === selectedSize
+    ) || [];
+
     return (
         <div className="flex h-screen bg-gray-100">
             {/* Product Display Area */}
             <div className="flex-1 overflow-auto p-6">
                 <FilterBar
-                    onFilterChange={(category) => setSelectedCategory(category as ProductCategory)}
-                    selectedCategory={selectedCategory}
+                    onFilterChange={(size) => setSelectedSize(size)}
+                    selectedSize={selectedSize}
+                    sizes={sizes}
                 />
-                {socketData && socketData.last_search && socketData.last_search.items?.length > 0 ? (
+                {filteredProducts.length > 0 ? (
                     <ProductGrid
-                        products={socketData.last_search.items.map(item => ({
+                        products={filteredProducts.map(item => ({
                             productName: item.productName || 'Unnamed Product',
                             product_description: item.product_description || 'No description available',
-                            image_url: item.image_url || 'https://via.placeholder.com/150', // Placeholder image
+                            image_url: item.image_url || 'https://placehold.co/600x400', // Placeholder image
                             size: item.size || 'N/A',
                             vendor: item.vendor || 'Unknown Vendor',
                             variantId: item.variantId || `temp-${Math.random()}`, // Fallback key

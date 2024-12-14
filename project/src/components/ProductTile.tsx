@@ -20,7 +20,10 @@ const ProductTile: React.FC<ProductTileProps> = ({ product }) => {
                 className="w-full h-48 object-cover mb-4"
             />
             <h2 className="text-lg font-bold mb-2">{product.productName || 'Unnamed Product'}</h2>
-            <p className="text-sm text-gray-600 mb-2">{product.product_description || 'No description available'}</p>
+            <div
+                className="text-sm text-gray-600 mb-2"
+                dangerouslySetInnerHTML={{ __html: product.product_description || 'No description available' }}
+            />
             <p className="text-sm text-gray-600 mb-2">Size: {product.size || 'N/A'}</p>
             <p className="text-sm text-gray-600">Vendor: {product.vendor || 'Unknown Vendor'}</p>
         </div>
