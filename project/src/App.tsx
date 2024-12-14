@@ -10,6 +10,7 @@ const SOCKET_URL = "https://a8kko0w0wk4okoogswgwg8kw.coolify.ooguy.com";
 function App() {
     const [selectedCategory, setSelectedCategory] = useState<ProductCategory>('all');
     const [selectedSize, setSelectedSize] = useState<string>('all');
+    const [selectedVendor, setSelectedVendor] = useState<string>('all');
     const [socketData, setSocketData] = useState(null);
 
     useEffect(() => {
@@ -37,8 +38,13 @@ function App() {
         ? Array.from(new Set(socketData.last_search.items.map(item => item.size)))
         : [];
 
+    const vendors = socketData?.last_search?.items
+        ? Array.from(new Set(socketData.last_search.items.map(item => item.vendor)))
+        : [];
+
     const filteredProducts = socketData?.last_search?.items.filter(item =>
-        selectedSize === 'all' || item.size === selectedSize
+        (selectedSize === 'all' || item.size === selectedSize) &&
+        (selectedVendor === 'all' || item.vendor === selectedVendor)
     ) || [];
 
     return (
@@ -46,9 +52,17 @@ function App() {
             {/* Product Display Area */}
             <div className="flex-1 overflow-auto p-6">
                 <FilterBar
-                    onFilterChange={(size) => setSelectedSize(size)}
+                    onFilterChange={(filterType, value) => {
+                        if (filterType === 'size') {
+                            setSelectedSize(value);
+                        } else if (filterType === 'vendor') {
+                            setSelectedVendor(value);
+                        }
+                    }}
                     selectedSize={selectedSize}
+                    selectedVendor={selectedVendor}
                     sizes={sizes}
+                    vendors={vendors}
                 />
                 {filteredProducts.length > 0 ? (
                     <ProductGrid
