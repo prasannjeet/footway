@@ -12,12 +12,19 @@ def get_filters():
     # Get query parameters from the request as a flat dictionary (single string for each key)
     query_params = request.args.to_dict(flat=True)  # Converts array-like parameters to single strings
 
+    # Valid departments
+    valid_departments = {"Men", "Women", "Children"}
+
     # Clean query parameters by removing null, empty values, or "xx"
     if query_params:
         query_params = {
             key: value for key, value in query_params.items()
             if value not in (None, "", "xx")  # Remove null, empty string, or "xx"
         }
+
+        # Ensure department values are valid
+        if 'department' in query_params and query_params['department'] not in valid_departments:
+            del query_params['department']
 
     print('Query Params:')
     print(query_params)
@@ -30,12 +37,19 @@ def search_inventory():
     # Get query parameters from the request as a flat dictionary (single string for each key)
     query_params = request.args.to_dict(flat=True)  # Converts array-like parameters to single strings
 
+    # Valid departments
+    valid_departments = {"Men", "Women", "Children"}
+
     # Clean query parameters by removing null, empty values, or "xx"
     if query_params:
         query_params = {
             key: value for key, value in query_params.items()
             if value not in (None, "", "xx")  # Remove null, empty string, or "xx"
         }
+
+        # Ensure department values are valid
+        if 'department' in query_params and query_params['department'] not in valid_departments:
+            del query_params['department']
 
     print('Query Params for Search:')
     print(query_params)
