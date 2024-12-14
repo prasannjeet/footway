@@ -11,6 +11,7 @@ function App() {
     const [selectedCategory, setSelectedCategory] = useState<ProductCategory>('all');
     const [selectedSize, setSelectedSize] = useState<string>('all');
     const [selectedVendor, setSelectedVendor] = useState<string>('all');
+    const [selectedProductGroup, setSelectedProductGroup] = useState<string>('all');
     const [socketData, setSocketData] = useState(null);
 
     useEffect(() => {
@@ -42,9 +43,14 @@ function App() {
         ? Array.from(new Set(socketData.last_search.items.map(item => item.vendor)))
         : [];
 
+    const productGroups = socketData?.last_search?.items
+        ? Array.from(new Set(socketData.last_search.items.map(item => item.productGroup)))
+        : [];
+
     const filteredProducts = socketData?.last_search?.items.filter(item =>
         (selectedSize === 'all' || item.size === selectedSize) &&
-        (selectedVendor === 'all' || item.vendor === selectedVendor)
+        (selectedVendor === 'all' || item.vendor === selectedVendor) &&
+        (selectedProductGroup === 'all' || item.productGroup === selectedProductGroup)
     ) || [];
 
     return (
@@ -57,12 +63,16 @@ function App() {
                             setSelectedSize(value);
                         } else if (filterType === 'vendor') {
                             setSelectedVendor(value);
+                        } else if (filterType === 'productGroup') {
+                            setSelectedProductGroup(value);
                         }
                     }}
                     selectedSize={selectedSize}
                     selectedVendor={selectedVendor}
+                    selectedProductGroup={selectedProductGroup}
                     sizes={sizes}
                     vendors={vendors}
+                    productGroups={productGroups}
                 />
                 {filteredProducts.length > 0 ? (
                     <ProductGrid
@@ -72,6 +82,7 @@ function App() {
                             image_url: item.image_url || 'https://placehold.co/600x400', // Placeholder image
                             size: item.size || 'N/A',
                             vendor: item.vendor || 'Unknown Vendor',
+                            productGroup: item.productGroup || 'Unknown Group',
                             variantId: item.variantId || `temp-${Math.random()}`, // Fallback key
                         }))}
                     />

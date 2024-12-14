@@ -50,7 +50,17 @@ def search_inventory():
     # Emit updated data to all connected WebSocket clients
     socketio.emit('update', store.get_all_data())
 
-    return jsonify(search_results)
+    # Extract unique values for size, productGroup, and department
+    unique_sizes = list({item['size'] for item in search_results['items'] if 'size' in item})
+    unique_product_groups = list({item['productGroup'] for item in search_results['items'] if 'productGroup' in item})
+    unique_departments = list({item['department'] for item in search_results['items'] if 'department' in item})
+
+    # Return the unique values in the API response
+    return jsonify({
+        'size': unique_sizes,
+        'productGroup': unique_product_groups,
+        'department': unique_departments
+    })
 
 @main.route('/', defaults={'path': ''})
 @main.route('/<path:path>')
