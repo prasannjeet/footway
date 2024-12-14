@@ -9,11 +9,12 @@ interface ProductTileProps {
         vendor: string;
         variantId: string;
     };
+    onClick: () => void;
 }
 
-const ProductTile: React.FC<ProductTileProps> = ({ product }) => {
+const ProductTile: React.FC<ProductTileProps> = ({ product, onClick }) => {
     return (
-        <div className="border p-4 rounded shadow-md">
+        <div className="border p-4 rounded shadow-md cursor-pointer" onClick={onClick}>
             <img
                 src={product.image_url}
                 alt={product.productName || 'Product Image'}

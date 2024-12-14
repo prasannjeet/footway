@@ -51,9 +51,9 @@ def search_inventory():
     socketio.emit('update', store.get_all_data())
 
     # Extract unique values for size, productGroup, and department
-    unique_sizes = list({item['size'] for item in search_results['items'] if 'size' in item})
-    unique_product_groups = list({item['productGroup'] for item in search_results['items'] if 'productGroup' in item})
-    unique_departments = list({item['department'] for item in search_results['items'] if 'department' in item})
+    unique_sizes = list({item['size'] for item in search_results['items'] if isinstance(item.get('size'), str)})
+    unique_product_groups = list({item['productGroup'] for item in search_results['items'] if isinstance(item.get('productGroup'), str)})
+    unique_departments = list({item['department'] for item in search_results['items'] if isinstance(item.get('department'), str)})
 
     # Return the unique values in the API response
     return jsonify({

@@ -10,13 +10,18 @@ interface ProductGridProps {
         vendor: string;
         variantId: string;
     }>;
+    onProductClick: (product: any) => void;
 }
 
-const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
+const ProductGrid: React.FC<ProductGridProps> = ({ products, onProductClick }) => {
+    const uniqueProducts = Array.from(
+        new Map(products.map(product => [product.variantId, product])).values()
+    );
+
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {products.map((product) => (
-                <ProductTile key={product.variantId} product={product} />
+            {uniqueProducts.map((product) => (
+                <ProductTile key={product.variantId} product={product} onClick={() => onProductClick(product)} />
             ))}
         </div>
     );

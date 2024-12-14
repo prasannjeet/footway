@@ -4,6 +4,7 @@ import ProductGrid from './components/ProductGrid';
 import { FilterBar } from './components/filters/FilterBar';
 import { ProductCategory } from './types/product';
 import IframeEmbed from './components/IframeEmbed';
+import ProductDetailsPopup from './components/ProductDetailsPopup';
 
 const SOCKET_URL = "https://a8kko0w0wk4okoogswgwg8kw.coolify.ooguy.com";
 
@@ -13,6 +14,7 @@ function App() {
     const [selectedVendor, setSelectedVendor] = useState<string>('all');
     const [selectedProductGroup, setSelectedProductGroup] = useState<string>('all');
     const [socketData, setSocketData] = useState(null);
+    const [selectedProduct, setSelectedProduct] = useState(null);
 
     useEffect(() => {
         const socket = io(SOCKET_URL);
@@ -44,13 +46,17 @@ function App() {
         : [];
 
     const productGroups = socketData?.last_search?.items
-        ? Array.from(new Set(socketData.last_search.items.map(item => item.productGroup)))
+        ? Array.from(
+            new Set(
+                socketData.last_search.items.flatMap(item => item.productGroup || [])
+            )
+        )
         : [];
 
     const filteredProducts = socketData?.last_search?.items.filter(item =>
         (selectedSize === 'all' || item.size === selectedSize) &&
         (selectedVendor === 'all' || item.vendor === selectedVendor) &&
-        (selectedProductGroup === 'all' || item.productGroup === selectedProductGroup)
+        (selectedProductGroup === 'all' || item.productGroup?.includes(selectedProductGroup))
     ) || [];
 
     return (
@@ -76,15 +82,8 @@ function App() {
                 />
                 {filteredProducts.length > 0 ? (
                     <ProductGrid
-                        products={filteredProducts.map(item => ({
-                            productName: item.productName || 'Unnamed Product',
-                            product_description: item.product_description || 'No description available',
-                            image_url: item.image_url || 'https://placehold.co/600x400', // Placeholder image
-                            size: item.size || 'N/A',
-                            vendor: item.vendor || 'Unknown Vendor',
-                            productGroup: item.productGroup || 'Unknown Group',
-                            variantId: item.variantId || `temp-${Math.random()}`, // Fallback key
-                        }))}
+                        products={filteredProducts}
+                        onProductClick={setSelectedProduct}
                     />
                 ) : (
                     <div className="flex items-center justify-center h-64">
@@ -97,6 +96,14 @@ function App() {
             <div className="w-96 flex flex-col border-l bg-white">
                 <IframeEmbed/>
             </div>
+
+            {/* Product Details Popup */}
+            {selectedProduct && (
+                <ProductDetailsPopup
+                    product={selectedProduct}
+                    onClose={() => setSelectedProduct(null)}
+                />
+            )}
         </div>
     );
 }
