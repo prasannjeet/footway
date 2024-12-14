@@ -1,4 +1,5 @@
-from flask import Blueprint, jsonify, request
+import os
+from flask import Blueprint, jsonify, request, send_from_directory, current_app
 from app.services import fetch_filters, fetch_inventory
 
 main = Blueprint('main', __name__)
@@ -17,8 +18,6 @@ def get_filters():
 
     print('Query Params:')
     print(query_params)
-
-    # Fetch the filters with the cleaned query parameters
     filters = fetch_filters(query_params)
     return jsonify(filters)
 
@@ -41,3 +40,20 @@ def search_inventory():
     # Fetch the search results with the cleaned query parameters
     search_results = fetch_inventory(query_params)
     return jsonify(search_results)
+
+@main.route('/', defaults={'path': ''})
+@main.route('/<path:path>')
+def serve_react(path):
+    # Get the absolute path to the 'frontend' folder
+    frontend_folder = os.path.join(current_app.root_path, '..', 'frontend')
+
+    # Serve files from 'frontend/assets' folder if requested
+    if path.startswith('assets'):
+        return send_from_directory(os.path.join(frontend_folder, 'assets'), path[len('assets/'):])
+
+    # Serve other static files (e.g., index.html)
+    if path == '' or not os.path.exists(os.path.join(frontend_folder, path)):
+        return send_from_directory(frontend_folder, 'index.html')
+
+    # Serve other files directly
+    return send_from_directory(frontend_folder, path)
