@@ -1,6 +1,9 @@
 import os
 from flask import Blueprint, jsonify, request, send_from_directory, current_app
+
+from app import socketio
 from app.services import fetch_filters, fetch_inventory
+from app.in_memory_store import InMemoryStore  # Import the singleton class
 
 main = Blueprint('main', __name__)
 
@@ -39,6 +42,14 @@ def search_inventory():
 
     # Fetch the search results with the cleaned query parameters
     search_results = fetch_inventory(query_params)
+
+    # Update in-memory store
+    store = InMemoryStore.get_instance()
+    store.set_data('last_search', search_results)
+
+    # Emit updated data to all connected WebSocket clients
+    socketio.emit('update', store.get_all_data())
+
     return jsonify(search_results)
 
 @main.route('/', defaults={'path': ''})
